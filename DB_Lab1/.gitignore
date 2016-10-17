@@ -1,0 +1,4 @@
+*.xhtml
+*.xml
+.idea
+__pycache__
