@@ -1,0 +1,5 @@
+{% load static %}
+<span class="status-tag">
+    <img src="{% get_static_prefix %}issues/status_{{status.icon}}.png" alt="{{status.text}}">
+    {{status.text}}
+</span>

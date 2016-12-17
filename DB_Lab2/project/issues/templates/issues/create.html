@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ issue }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'issues/issue_view.css' %}">
+</head>
+<body>
+<a href="{% url 'issues:index' %}">back</a>
+<h2>Create issue</h2>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'issues:create' %}" method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <input type="submit" value="Create" title="Create issue">
+</form>
+</body>
+</html>

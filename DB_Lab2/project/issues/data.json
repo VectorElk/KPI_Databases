@@ -1,0 +1,55 @@
+{
+  "users": [
+    {
+      "username": "qa",
+      "email": "qa@there.io",
+      "password": "4e1243bd22c66e76c2ba9eddc1f91394e57f9f83",
+      "create_time": 1459197068
+    },
+    {
+      "username": "dev",
+      "email": "dev@here.io",
+      "password": "eeb2b9a1a02e35a393d1baf0e953fb8788bea5a4",
+      "create_time": 1448964060
+    },
+    {
+      "username": "blocked",
+      "email": "random@nowhere",
+      "password": "2082e7f715f058acab2398d25d135cf5f4c0ce41",
+      "create_time": 1449043260,
+      "blocked": true
+    }
+  ],
+  "priorities": [
+    {
+      "text": "Low",
+      "priority_value": 1
+    },
+    {
+      "text": "Medium",
+      "priority_value": 2
+    },
+    {
+      "text": "High",
+      "priority_value": 4
+    },
+    {
+      "text": "Critical",
+      "priority_value": 8
+    },
+    {
+      "text": "Blocker",
+      "priority_value": 16
+    }
+  ],
+  "statuses": [
+    {
+      "text": "Open",
+      "icon": "open"
+    },
+    {
+      "text": "Closed",
+      "icon": "closed"
+    }
+  ]
+}

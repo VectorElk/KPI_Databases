@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ user }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'issues/user_view.css' %}">
+</head>
+<body>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+<h1 class="user-title">User info</h1>
+<div class="user-info">
+    <h3 class="label">Username</h3>
+    <div class="label-text">{{ user.username }}</div>
+    <h3 class="label">Email</h3>
+    <div class="label-text">{{ user.email }}</div>
+    <h3 class="label">Created on</h3>
+    <div class="label-text">{{ user.create_time }}</div>
+    <h3 class="label">Blocked</h3>
+    <div class="label-text">{{ user.is_blocked | yesno:"yes,no" }}</div>
+</div>
+</body>
+</html>

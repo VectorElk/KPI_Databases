@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ issue }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'issues/issue_view.css' %}">
+</head>
+<body>
+<a href="{% url 'issues:index' %}">back</a>
+<h1 class="issue-title">{{ issue.title }}</h1>
+<div class="issue-info">
+    <div class="description">{{ issue.description }}</div>
+    <div class="attributes">
+        <h3 class="label">Created on: </h3>
+        <div class="label-text">{{ issue.create_time }}</div>
+        <h3 class="label">Priority: </h3>
+        <div class="label-text">{{ issue.priority }}</div>
+        <h3 class="label">Status: </h3>{% include 'issues/status.html' with status=issue.status %}
+        <h3 class="label">Created by: </h3>
+        <div class="label-text">
+            <a href="{% url 'issues:view_user' issue.created_by.id %}">
+                {{ issue.created_by }}
+            </a>
+        </div>
+        <h3 class="label">Assigned to: </h3>
+        <div class="label-text">
+            {% if issue.assigned_to %}
+            <a href="{% url 'issues:view_user' issue.assigned_to.id %}">
+                {{ issue.assigned_to}}
+            </a>
+            {% else %}nobody{% endif %}
+        </div>
+        <h3 class="label">Updated on: </h3>
+        <div class="label-text">{{ issue.update_time|default:"never" }}</div>
+    </div>
+    <div class="spacer"></div>
+</div>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'issues:view' issue.id %}" method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <input type="submit" value="Update" title="Update issue data">
+</form>
+<hr>
+<form action="{% url 'issues:delete' issue.id %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Delete" title="Delete this issue">
+</form>
+</body>
+</html>
