@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.views.generic import RedirectView
 
 urlpatterns = [
-    url(r'^', include('issues.urls')),
-    url(r'^issues/', include('issues.urls')),
+    url('^$', RedirectView.as_view(pattern_name='issues:index')),
+    url(r'^journal/', include('journal.urls')),
     url(r'^admin/', admin.site.urls)
 ]

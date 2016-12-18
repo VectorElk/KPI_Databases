@@ -1,0 +1,42 @@
+{% extends 'issues/base.html' %}
+
+{% load bootstrap3 %}
+{% load static %}
+
+{% block local_styles %}
+    <link rel="stylesheet" href="{% static 'journal/journal_list.css' %}">
+{% endblock local_styles %}
+
+{% block content %}
+    <div class="container">
+            <h1><a href="{% url 'journal:index' %}">{% block title %}MARKS{% endblock %}</a></h1>
+            <a href="{% url 'journal:create' %}">new journal</a>
+        </div>
+
+        {% if journals %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                    <tr class="success">
+                        <th>Mark Letter</th>
+                        <th>Subject</th>
+                        <th>Student name</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for i in journal_list %}
+                        <tr class='clickable-row' data-href="{% url 'view' journal|underscore:'_id' %}">
+                            <td>{{ i.student_id.student_name }}</td>
+                            <td>{{ i.subject_id.subject_name }}</td>
+                            <td>{{ i.student_id.student_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">No marks in journal</div>
+        {% endif %}
+    </div>
+{% endblock content %}

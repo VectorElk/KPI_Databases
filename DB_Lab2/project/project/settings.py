@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'issues.apps.IssuesConfig',
+    'journal',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'import_export'
+    'import_export',
+    'bootstrap3'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -77,13 +78,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'kpi_labs',
-        'HOST': 'localhost',
-        'USER': 'cl0ne',
-        'PASSWORD': 'local-d3v'
+MONGODB_SETTINGS = {
+    'db': 'db_lab2',
+    'connection': { # args passed to MongoClient
+        'host': 'localhost',
+        'port': '27017'
     }
 }
 
