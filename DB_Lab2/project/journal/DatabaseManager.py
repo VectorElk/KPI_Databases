@@ -6,58 +6,73 @@ from bson.code import Code
 class DB(object):
     def __init__(self):
         self.client = MongoClient()
-        self.db = self.client.test
+        self.db = self.client.db_lab2
 
-    def getJournalList(self):
-        journals = [journal for journal in self.db.journal.find()]
+    def getJournal(self, id_):
+        return self.db.journals.find_one(filter={'_id': ObjectId(id_)})
+
+    def getJournalList(self, offset=0, limit=10):
+        journals = self.db.journals.find(skip=offset, limit=limit)
         return journals
 
-    def getStudentList(self):
-        students = [student for student in self.db.student.find()]
+    def getStudentList(self, allow_empty=True):
+        students = [(None, '')] if allow_empty else []
+        c = self.db.student.find(projection=['student_name'])
+        students += [(s['_id'], s['student_name']) for s in c]
         return students
 
-    def getTeacherList(self):
-        teachers = [teacher for teacher in self.db.teacher.find()]
+    def getTeacherList(self, allow_empty=True):
+        teachers = [(None, '')] if allow_empty else []
+        c = self.db.teacher.find(projection=['teacher_name'])
+        teachers += [(s['_id'], s['teacher_name']) for s in c]
         return teachers
 
-    def getGroupList(self):
-        groups = [group for group in self.db.group.find()]
+    def getGroupList(self, allow_empty=True):
+        groups = [(None, '')] if allow_empty else []
+        c = self.db.group.find(projection=['group_name'])
+        groups += [(s['_id'], s['group_name']) for s in c]
         return groups
 
-    def getSubjectList(self):
-        subjects = [subject for subject in self.db.subject.find()]
+    def getSubjectList(self, allow_empty=True):
+        subjects = [(None, '')] if      allow_empty else []
+        c = self.db.subject.find(projection=['subject_name'])
+        subjects += [(s['_id'], s['subject_name']) for s in c]
         return subjects
 
     def removeJournal(self, id):
-        self.db.journal.delete_one({'journal_id': ObjectId(id)})
+        self.db.journals.delete_one({'_id': ObjectId(id)})
 
     def saveJournal(self, info):
-        mark_letter = self.db.journal.find_one({'journal_id': ObjectId(info['mark_letter'])})
-        mark_numeric = self.db.journal.find_one({'journal_id': ObjectId(info['mark_numeric'])})
-        group_id = self.db.group.find_one({'journal_id': ObjectId(info['group_id'])})
-        teacher_id = self.db.teacher.find_one({'journal_id': ObjectId(info['teacher_id'])})
-        subject_id = self.db.subject.find_one({'journal_id': ObjectId(info['subject_id'])})
-        student_id = self.db.student.find_one({'journal_id': ObjectId(info['student_id'])})
-        order = {'mark_letter': mark_letter, 'mark_numeric': mark_numeric, 'group_id': group_id,
-                 'teacher_id': teacher_id, 'subject_id': subject_id, 'student_id': student_id}
-        self.db.journal.insert(order)
+        group_id = self.db.group.find_one(filter={'_id': ObjectId(info['group_id'])})
+        teacher_id = self.db.teacher.find_one(filter={'_id': ObjectId(info['teacher_id'])})
+        subject_id = self.db.subject.find_one(filter={'_id': ObjectId(info['subject_id'])})
+        student_id = self.db.student.find_one(filter={'_id': ObjectId(info['student_id'])})
+        journal = {'mark_letter': info['mark_letter'],
+                   'mark_numeric': info['mark_numeric'],
+                   'group_id': group_id,
+                   'teacher_id': teacher_id,
+                   'subject_id': subject_id,
+                   'student_id': student_id}
+        self.db.journals.insert_one(journal).inserted_id
 
     def updateJournal(self, info):
-        mark_letter = self.db.journal.find_one({'_id': ObjectId(info['mark_letter'])})
-        mark_numeric = self.db.journal.find_one({'_id': ObjectId(info['mark_numeric'])})
-        group_id = self.db.group.find_one({'_id': ObjectId(info['group_id'])})
-        teacher_id = self.db.teacher.find_one({'_id': ObjectId(info['teacher_id'])})
-        subject_id = self.db.subject.find_one({'_id': ObjectId(info['subject_id'])})
-        student_id = self.db.student.find_one({'_id': ObjectId(info['student_id'])})
-        journal = {'mark_letter': mark_letter, 'mark_numeric': mark_numeric, 'group_id': group_id,
-                   'teacher_id': teacher_id, 'subject_id': subject_id, 'student_id': student_id}
-        self.db.journal.update_one({'_id': ObjectId(info['journal'])}, {'$set': journal})
+        group_id = self.db.group.find_one(filter={'_id': ObjectId(info['group_id'])})
+        teacher_id = self.db.teacher.find_one(filter={'_id': ObjectId(info['teacher_id'])})
+        subject_id = self.db.subject.find_one(filter={'_id': ObjectId(info['subject_id'])})
+        student_id = self.db.student.find_one(filter={'_id': ObjectId(info['student_id'])})
+        journal = {'mark_letter': info['mark_letter'],
+                   'mark_numeric': info['mark_numeric'],
+                   'group_id': group_id,
+                   'teacher_id': teacher_id,
+                   'subject_id': subject_id,
+                   'student_id': student_id}
+        self.db.journals.update_one({'_id': ObjectId(info['journal'])}, {'$set': journal})
 
     def getTopStudentsAggregate(self):
-        students = list(self.db.journal.aggregate(
-            [{"$unwind": "student_id.student_name"},
-             {"$project": {"student_name": "student_id.student_name", "count": {"$add": [1]}}},
-             {"$group": {"student_id": "student_name", "number": {"$sum": "$count"}}},
+        students = list(self.db.journals.aggregate(
+            [{"$unwind": "$student_id.student_name"},
+             {"$project": {"name": "$student_name", "count": {"$add": ["$mark_numeric"]}}},
+             {"$group": {"_id": "$student_name", "number": {"$sum": "$count"}}},
              {"$sort": {"number": -1}}, {"$limit": 3}]))
         return students
 
@@ -78,7 +93,7 @@ class DB(object):
                                     return {count: count};
                                 };
                                 """)
-        result = self.db.journal.map_reduce(mapper, reducer, "result")
+        result = self.db.journals.map_reduce(mapper, reducer, "result")
         res = list(result.find())
         print(res)
 

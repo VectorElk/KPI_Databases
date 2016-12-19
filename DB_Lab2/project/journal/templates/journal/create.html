@@ -1,16 +1,19 @@
+{% extends 'journal/base.html' %}
+
+{% load bootstrap3 %}
+{% load static %}
+
+{% block local_styles %}
+    <link rel="stylesheet" href="{% static 'journal/journal_create.css' %}">
+{% endblock local_styles %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ issue }}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'issues/issue_view.css' %}">
-</head>
 <body>
-<a href="{% url 'issues:index' %}">back</a>
-<h2>Create issue</h2>
+<a href="{% url 'journals:index' %}">back</a>
+<h2>Add mark</h2>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-<form action="{% url 'issues:create' %}" method="post">
+<form action="{% url 'journals:create' %}" method="post">
     {% csrf_token %}
     <table>
         {{ form.as_table }}
@@ -19,3 +22,4 @@
 </form>
 </body>
 </html>
+{% endblock content %}

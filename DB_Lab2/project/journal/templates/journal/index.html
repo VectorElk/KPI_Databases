@@ -1,5 +1,6 @@
-{% extends 'issues/base.html' %}
+{% extends 'journal/base.html' %}
 
+{% load journal_extras %}
 {% load bootstrap3 %}
 {% load static %}
 
@@ -9,27 +10,31 @@
 
 {% block content %}
     <div class="container">
-            <h1><a href="{% url 'journal:index' %}">{% block title %}MARKS{% endblock %}</a></h1>
-            <a href="{% url 'journal:create' %}">new journal</a>
+            <h1><a href="{% url 'journals:index' %}">{% block title %}MARKS{% endblock %}</a></h1>
+            <a href="{% url 'journals:create' %}">new journal</a>
+            <a href="{% url 'journals:top_students' %}">top students</a>
         </div>
 
-        {% if journals %}
+        {% if journal_list %}
             <div class="table-responsive">
                 <table class="table table-striped table-hover table-bordered">
                     <thead>
                     <tr class="success">
                         <th>Mark Letter</th>
                         <th>Subject</th>
+                        <th>Teacher</th>
                         <th>Student name</th>
+                        <th>Group</th>
                     </tr>
                     </thead>
                     <tbody>
-
                     {% for i in journal_list %}
-                        <tr class='clickable-row' data-href="{% url 'view' journal|underscore:'_id' %}">
-                            <td>{{ i.student_id.student_name }}</td>
+                        <tr>
+                            <td><a href="{% url 'journals:view' i|object_id %}">{{ i.mark_letter }}</a></td>
                             <td>{{ i.subject_id.subject_name }}</td>
+                            <td>{{ i.teacher_id.teacher_name }}</td>
                             <td>{{ i.student_id.student_name }}</td>
+                            <td>{{ i.group_id.group_name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
