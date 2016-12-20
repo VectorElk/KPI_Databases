@@ -70,54 +70,48 @@ class DB(object):
 
     def getTopStudentsAggregate(self):
         students = list(self.db.journals.aggregate(
-            [{"$unwind": "$student_id.student_name"},
-             {"$project": {"name": "$student_name", "count": {"$add": ["$mark_numeric"]}}},
-             {"$group": {"_id": "$student_name", "number": {"$sum": "$count"}}},
-             {"$sort": {"number": -1}}, {"$limit": 3}]))
+            [{"$project": {"name": "$student_id.student_name", "count": {"$add": ["$mark_numeric"]}}},
+             {"$group": {"_id": "$name", "number": {"$sum": "$count"}}},
+             {"$sort": {"number": -1}}]))
         return students
 
-    def mapMostMarks(self):
+    def mapAvarageMarks(self):
         mapper = Code("""
                             function() {
-                                   var key = this.student_id.student_name;
-                                   var value = {count : 1};
-                                   emit(key, value);
+                                       var key = this.student_id.student_name;
+                                       var value = this.mark_numeric;
+                                       emit(key, value);
                             };
                             """)
         reducer = Code("""
                                 function (key, values) {
+                                    return Array.avg(values);
+                                };
+                                """)
+        result = self.db.journals.map_reduce(mapper, reducer, "result")
+        res = list(result.find())
+        return res
+
+    def mapMostHighGrades(self):
+        mapper = Code("""
+                    function() {
+                           var key = this.student_id.student_name;
+                            var value = { count : 0 }
+                            if (this.mark_letter == 'A'){
+                                value = { count : 1 };
+                            }
+                            emit(key, value);
+                    };
+                    """)
+        reducer = Code("""
+                        function (key, values) {
                                     var count = 0;
                                     for(var i in values){
                                         count += values[i].count;
                                     }
                                     return {count: count};
                                 };
-                                """)
+                        """)
         result = self.db.journals.map_reduce(mapper, reducer, "result")
         res = list(result.find())
-        print(res)
-
-    def mapTopStudents(self):
-        mapper = Code("""
-                    function() {
-                           var key = this.student_id.student_name;
-                           var value = {
-
-                           }
-                           emit(key, value);
-                    };
-                    """)
-        reducer = Code("""
-                        function (key, values) {
-
-                            var count = 0;
-                            for(var i in values){
-                                count += values[i].count;
-                                total += values[i].total;
-                            }
-                            return {total: total, count: count};
-                        };
-                        """)
-        result = self.db.order.map_reduce(mapper, reducer, "result")
-        res = list(result.find())
-        print(res[0]['value']['total'] / res[0]['value']['count'])
+        return res

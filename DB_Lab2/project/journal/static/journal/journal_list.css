@@ -7,13 +7,8 @@
     text-decoration: none;
 }
 
-.filter-form table {
-    margin-top: 1em;
-    border-collapse: collapse;
-}
-
 .filter-form table thead tr {
-    border-bottom: solid 10px gray;
+    border-bottom: solid 100px gray;
     color: #999;
 }
 

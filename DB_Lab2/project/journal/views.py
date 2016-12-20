@@ -23,8 +23,6 @@ class JournalDetailView(generic.View):
     def get(self, request, *args, **kwargs):
         journal_id = kwargs['journal_id']
         journal = db.getJournal(journal_id)
-        print(1)
-        print(journal)
         if not journal:
             raise Http404('No such mark')
         initial = journal.copy()
@@ -92,8 +90,18 @@ def add(request):
 
 def top_students(request):
     students = db.getTopStudentsAggregate()
-    print(1)
-    print(students)
     return render(request, 'journal/top.html', {'students': students})
+
+
+def avarage(request):
+    students = db.mapAvarageMarks()
+    return render(request, 'journal/avarage.html', {'students': students})
+
+
+def scholarship(request):
+    students = db.mapMostHighGrades()
+    print(students)
+    return render(request, 'journal/highgrades.html', {'students': students})
+
 
 
