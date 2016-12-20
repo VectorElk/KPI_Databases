@@ -1,0 +1,49 @@
+{% extends 'journal/base.html' %}
+
+{% load journal_extras %}
+{% load bootstrap3 %}
+{% load static %}
+
+{% block local_styles %}
+    <link rel="stylesheet" href="{% static 'journal/journal_list.css' %}">
+{% endblock local_styles %}
+
+{% block content %}
+    <div class="container">
+            <h1><a href="{% url 'journals:index' %}">{% block title %}MARKS{% endblock %}</a></h1>
+            <a href="{% url 'journals:create' %}">new journal</a>
+            <a href="{% url 'journals:top_students' %}">top students</a>
+            <a href="{% url 'journals:avarage' %}">avarage marks</a>
+            <a href="{% url 'journals:scholarship' %}">scholarship</a>
+        </div>
+
+        {% if journal_list %}
+            <div class="table">
+                <table class="table">
+                    <thead>
+                    <tr class="success">
+                        <th>Mark</th>
+                        <th>Subject</th>
+                        <th>Teacher</th>
+                        <th>Student name</th>
+                        <th>Group</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in journal_list %}
+                        <tr class="success">
+                            <td><a href="{% url 'journals:view' i|object_id %}">{{ i.mark_letter }}</a></td>
+                            <td>{{ i.subject_id.subject_name }}</td>
+                            <td>{{ i.teacher_id.teacher_name }}</td>
+                            <td>{{ i.student_id.student_name }}</td>
+                            <td>{{ i.group_id.group_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">No marks in journal</div>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,37 @@
+h1.user-title
+{
+    color: #454545;
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+    margin: 0.2em auto;
+}
+
+.user-info {
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+    border-top: #999 1px solid;
+    border-bottom: #999 1px solid;
+    margin: 0em;
+    padding: 0.5em;
+}
+
+.user-info .label {
+    color: #666;
+    line-height: 0.75em;
+    margin: 0.75em 0em 0.5em 0em;
+}
+
+.user-info .label-text {
+    color: #767676;
+    line-height: 0.75em;
+}
+
+.issue-info .status-tag {
+    color: #767676;
+}
+
+.issue-info .status-tag {
+}
+
+.issue-info .status-tag img {
+    vertical-align: text-bottom;
+    margin: 0em 0.5em 0em 0em;
+}

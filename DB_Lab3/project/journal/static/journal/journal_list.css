@@ -1,0 +1,39 @@
+.page-header > h1 > a
+{
+    color: #999;
+}
+.page-header > h1 > a:hover
+{
+    text-decoration: none;
+}
+
+.filter-form table thead tr {
+    border-bottom: solid 100px gray;
+    color: #999;
+}
+
+.filter-form table tr.fields-row {
+    text-align: center;
+    border-bottom: solid 1px gray;
+}
+
+.filter-form table tr.errors-row td {
+    text-align: center;
+}
+
+.filter-form table tr.errors-row ul.errorlist {
+    list-style: none;
+    margin: 0;
+    padding: 0.25em 0;
+}
+
+.filter-form table tr.errors-row ul.errorlist li {
+    color: #d83629;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.filter-form table .clear-filter {
+    padding: 0 1em;
+}

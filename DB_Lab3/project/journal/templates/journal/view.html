@@ -1,0 +1,39 @@
+{% extends 'journal/base.html' %}
+
+{% load bootstrap3 %}
+{% load journal_extras %}
+{% load static %}
+
+{% block local_styles %}
+    <link rel="stylesheet" href="{% static 'journal/journal_view.css' %}">
+{% endblock local_styles %}
+
+{% block title %}Mark: {{ journal.id }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h1><a href="{% url 'journals:index' %}">back</a></h1>
+        </div>
+
+        <div style="width:400px; margin:0 auto;">
+            <div class="form-block panel panel-success">
+                <div class="panel-heading text-center">
+                    Update
+                </div>
+                {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+                <div class="panel-body">
+                    <form class="form-horizontal" action="{% url 'journals:view' journal|object_id %}" method="post">
+                        {% csrf_token %}
+                        {% bootstrap_form form layout='horizontal' %}
+                        <button type="submit" class="btn btn-primary" title="Update data">
+                            Update
+                        </button>
+                    </form>
+                    <hr/>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
