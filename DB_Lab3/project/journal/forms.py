@@ -25,3 +25,8 @@ class CreateJournalForm(forms.Form):
 class CreateTeacherForm(forms.Form):
     teacher_name = forms.CharField(label="Name")
     teacher_phone = forms.CharField(label="Phone")
+
+
+class MarkFilterForm(forms.Form):
+    mark_min = forms.IntegerField(label='Mark minimal', required=True)
+    mark_max = forms.IntegerField(label='Mark maximal', required=True)

@@ -1,8 +1,9 @@
 from django.shortcuts import render, reverse, redirect
 from django.http import Http404, HttpResponseRedirect
 from DatabaseManager import DB
-from forms import CreateJournalForm, UpdateJournalForm
+from forms import CreateJournalForm, UpdateJournalForm, MarkFilterForm
 from django.views import generic
+import time
 
 db = DB()
 
@@ -102,6 +103,23 @@ def scholarship(request):
     students = db.mapMostHighGrades()
     print(students)
     return render(request, 'journal/highgrades.html', {'students': students})
+
+
+def sort(request):
+    if request.GET:
+        form = MarkFilterForm(request.GET)
+    else:
+        form = MarkFilterForm()
+    journals = {}
+    if form.is_valid():
+        journals = db.mapByMark(form.cleaned_data['mark_min'], form.cleaned_data['mark_max'])
+        print("______")
+        print(journals)
+    context = {
+        'form': form,
+        'journals': journals.items()
+    }
+    return render(request, 'journal/sort.html', context)
 
 
 

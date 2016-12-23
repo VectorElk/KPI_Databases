@@ -11,40 +11,43 @@
 
 {% block content %}
     <div class="container">
-            <h1><a href="{% url 'journals:index' %}">{% block title %}MARKS{% endblock %}</a></h1>
+            <h1><a href="{% url 'journals:index' %}">{% block title %}Search by marks{% endblock %}</a></h1>
+                <form action="{% url 'journals:sort' %}" method="get" class="form form-inline">
+                {% bootstrap_form_errors form layout='inline' %}
+                {% bootstrap_form form layout='inline' %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        Go
+                    </button>
+                </div>
+            </form>
             <a href="{% url 'journals:create' %}">New journal</a>
             <a href="{% url 'journals:top_students' %}">Top students</a>
             <a href="{% url 'journals:avarage' %}">Avarage marks</a>
             <a href="{% url 'journals:scholarship' %}">Most high grades</a>
-            <a href="{% url 'journals:sort' %}">Sort</a>
         </div>
-        {% if journal_list %}
             <div class="table">
                 <table class="table">
                     <thead>
                     <tr class="success">
-                        <th>Mark</th>
-                        <th>Subject</th>
-                        <th>Teacher</th>
-                        <th>Student name</th>
-                        <th>Group</th>
+                        <th>Student</th>
+                        <th>Num of marks</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for i in journal_list %}
+                    {% for i, j in journals %}
                         <tr class="success">
-                            <td><a href="{% url 'journals:view' i|object_id %}">{{ i.mark_letter }}</a></td>
-                            <td>{{ i.subject_id.subject_name }}</td>
-                            <td>{{ i.teacher_id.teacher_name }}</td>
-                            <td>{{ i.student_id.student_name }}</td>
-                            <td>{{ i.group_id.group_name }}</td>
+                            <td colspan="2">{{ i }}</td>
+                            {% for m, n in j.items %}
+                            <tr>
+                            <td >{{ m }}</td>
+                            <td >{{ n }}</td>
+                            </tr>
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-        {% else %}
-            <div class="text-center">No marks in journal</div>
-        {% endif %}
     </div>
 {% endblock content %}

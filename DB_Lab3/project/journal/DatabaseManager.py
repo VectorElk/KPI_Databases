@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.code import Code
+import redis
 import pickle
 
 
@@ -8,12 +9,13 @@ class DB(object):
     def __init__(self):
         self.client = MongoClient()
         self.db = self.client.db_lab2
+        self.r = redis.StrictRedis()
 
     def getJournal(self, id_):
-        return self.db.journals.find_one(filter={'_id': ObjectId(id_)})
+        return self.db.journal_redis.find_one(filter={'_id': ObjectId(id_)})
 
     def getJournalList(self, offset=0, limit=10):
-        journals = self.db.journals.find(skip=offset, limit=limit)
+        journals = self.db.journal_redis.find(skip=offset, limit=limit)
         return journals
 
     def getStudentList(self, allow_empty=True):
@@ -41,7 +43,8 @@ class DB(object):
         return subjects
 
     def removeJournal(self, id):
-        self.db.journals.delete_one({'_id': ObjectId(id)})
+        self.db.journal_redis.delete_one({'_id': ObjectId(id)})
+        self.r.incr('version')
 
     def saveJournal(self, info):
         group_id = self.db.group.find_one(filter={'_id': ObjectId(info['group_id'])})
@@ -54,7 +57,8 @@ class DB(object):
                    'teacher_id': teacher_id,
                    'subject_id': subject_id,
                    'student_id': student_id}
-        self.db.journals.insert_one(journal).inserted_id
+        self.db.journal_redis.insert_one(journal)
+        self.r.incr('version')
 
     def updateJournal(self, info):
         group_id = self.db.group.find_one(filter={'_id': ObjectId(info['group_id'])})
@@ -67,7 +71,8 @@ class DB(object):
                    'teacher_id': teacher_id,
                    'subject_id': subject_id,
                    'student_id': student_id}
-        self.db.journals.update_one({'_id': ObjectId(info['journal'])}, {'$set': journal})
+        self.db.journal_redis.update_one({'_id': ObjectId(info['journal'])}, {'$set': journal})
+        self.r.incr('version')
 
     def getTopStudentsAggregate(self):
         students = list(self.db.journals.aggregate(
@@ -89,7 +94,7 @@ class DB(object):
                                     return Array.avg(values);
                                 };
                                 """)
-        result = self.db.journals.map_reduce(mapper, reducer, "result")
+        result = self.db.journal_redis.map_reduce(mapper, reducer, "result")
         res = list(result.find())
         return res
 
@@ -113,6 +118,49 @@ class DB(object):
                                     return {count: count};
                                 };
                         """)
-        result = self.db.journals.map_reduce(mapper, reducer, "result")
+        result = self.db.journal_redis.map_reduce(mapper, reducer, "result")
         res = list(result.find())
         return res
+
+    def mapByMark(self, mark_min, mark_max):
+        mapper = Code('''
+            function(){
+                var k = {
+                    mark_numeric: this.mark_numeric,
+                    student: this.student_id.student_name
+                }
+                emit(k, 1);
+            }
+        ''')
+        reducer = Code('''
+            function(key, values) {
+                return Array.sum(values);
+            }
+        ''')
+        results = self.db.journal_redis.map_reduce(
+            mapper, reducer, {'inline': 1},
+            query={'mark_numeric': {'$gte': mark_min-1, '$lt': mark_max}}
+        )['results']
+        d = dict()
+        for r in results:
+            s = d.setdefault(r['_id']['student'], dict())
+            s[r['_id']['mark_numeric'] + 1] = r['value']
+        return d
+
+    def sort(self, request):
+        req = str(request).partition('&')[2]
+        if self.r.exists(req) != 0 and self.r.hget(req, 'version') == self.r.get('version'):
+            journal = pickle.loads(self.r.hget(req, 'res'))
+        else:
+            query = {}
+            if request.GET['fromMark'] != '' or request.GET['toMark'] != '':
+                query["total"] = {}
+                if request.GET['fromMark'] != '':
+                    query["total"]['$gte'] = int(request.GET['fromMark'])
+                if request.GET['toMark'] != '':
+                    query["total"]['$lte'] = int(request.GET['toMark'])
+            if request.GET['student_id'] != '0':
+                query["student_id._id"] = ObjectId(request.GET['student_id'])
+            journal = list(self.db.journal_redis.find(query))
+            self.r.hmset(req, {'res': pickle.dumps(journal), 'version': self.r.get('version')})
+        return list(journal)
